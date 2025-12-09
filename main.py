@@ -8,9 +8,9 @@
 # so i could updtae data in the profile screen acroding to added new profiel or deleted ones so every time any btn is pushed 
 # idealy i want to make so it destryes old profile screen and crates a new one with updated data
 
-from operator import index
 import tkinter as tk
-
+from tkinter import messagebox
+from datetime import date
 
 users = [
     {
@@ -26,10 +26,170 @@ users = [
         'age': 25,
         "height": 165.0,
         "order": 2
-    }
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 3
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 4
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 5
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 6
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 7
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 8
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 9
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 10
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 11
+    },
+        {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 12
+    },
 ]
 
-enteries = []
+enteries = [
+    {
+        "profile_name": "Makhmudjan",
+        "date": "2025-12-07",
+        "steps": 9500,
+        "sleep_hours": 7.5,
+        "mood": 1,
+        "weight_kg": 68.7,
+    },
+    {
+        "profile_name": "Makhmudjan",
+        "date": "2025-12-08",
+        "steps": 12340,
+        "sleep_hours": 6,
+        "mood": 0,
+        "weight_kg": 68.5,
+    },
+    {
+        "profile_name": "Makhmudjan",
+        "date": "2025-12-09",
+        "steps": 8000,
+        "sleep_hours": 8,
+        "mood": -1,
+        "weight_kg": 68.9,
+    },
+    {
+        "profile_name": "Malika",
+        "date": "2025-12-07",
+        "steps": 4000,
+        "sleep_hours": 5,
+        "mood": 0,
+        "weight_kg": 75.2,
+    },
+    {
+        "profile_name": "Malika",
+        "date": "2025-12-08",
+        "steps": 10200,
+        "sleep_hours": 7,
+        "mood": 1,
+        "weight_kg": 74.9,
+    },
+]
+current_user= [0]
+
+class profile:
+    def __init__(self, user, entries):
+        self.name = user['name']
+        self.entries = entries
+        self.gender = user['gender']
+        self.age = user['age']
+        self.height_cm = user['height']
+    def calculate_bmi(self):
+        weight = 0
+        for entry in reversed(self.entries):
+            if entry['profile_name'] == self.name:
+                weight = entry['weight_kg']
+                break
+        height_m = self.height_cm / 100
+        bmi = weight / (height_m ** 2)
+        return round(bmi, 2)
+    def calculate_averages(self):
+        steps = []
+        sleep_hours = []
+        mood = []
+        weight_kg = []
+        for entry in reversed(self.entries):
+            if entry['profile_name'] == self.name:
+                steps.append(entry['steps'])
+                sleep_hours.append(entry['sleep_hours'])
+                mood.append(entry['mood'])
+                weight_kg.append(entry['weight_kg'])
+        if steps == [] or sleep_hours == [] or mood == [] or weight_kg == []:
+                    return {
+            "average_steps": 0,
+            "average_sleep": 0,
+            "sum_mood": 0,
+            "average_weight": 0
+            }
+        else:
+            average_steps = sum(steps[0:6]) / len(steps[0:6])
+            average_sleep = sum(sleep_hours[0:6]) / len(sleep_hours[0:6])
+            sum_mood = sum(mood[0:6])
+            average_weight = sum(weight_kg[0:6]) / len(weight_kg[0:6])
+
+            return {
+            "average_steps": round(average_steps, 2),
+            "average_sleep": round(average_sleep, 2),
+            "sum_mood": sum_mood,
+            "average_weight": round(average_weight, 2)
+        }
+
 
 def show_profile_screen():
     profile_screen.tkraise()
@@ -39,7 +199,120 @@ def show_history_screen():
     history_screen.tkraise()
 
 
+# go to statboard screen function
+def statboard_render(user, date, entries): 
+    global current_user
+    current_user = []
+    current_user = profile(user, entries)
+    navigation_label.config(text=f"Hello, {current_user.name}, {date}")
+    steps_label.config(text=f"Your average steps for last 7 recorded days is: {current_user.calculate_averages()['average_steps']}")
+    sleep_label.config(text=f"Your average sleep hours for last 7 recorded days is: {current_user.calculate_averages()['average_sleep']}")
+    weight_label.config(text=f"Your average weight for last 7 recorded days is: {current_user.calculate_averages()['average_weight']}")
+    bmi_label.config(text=f"Your BMI is {current_user.calculate_bmi()}")
+    if current_user.calculate_averages()['sum_mood'] > 2:
+        mood_label.config(text="You have been mostly happy in the last 7 recorded days")
+    elif current_user.calculate_averages()['sum_mood'] < -2:
+        mood_label.config(text="You have been mostly sad in the last 7 recorded days")
+    else:
+        mood_label.config(text="You have been mostly neutral in the last 7 recorded days")
+    suggstions =''
+    # BMI suggestions https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html
+    if current_user.calculate_bmi() < 18.5:
+        suggstions = "You are underweight. Consider a balanced diet with more calories and nutrients to reach a healthier weight " + suggstions
+    elif 18.5 <= current_user.calculate_bmi() < 24.9:
+        suggstions = "Great job! Keep maintaining a balanced diet and regular exercise to stay healthy " + suggstions
+    elif 25 <= current_user.calculate_bmi() < 29.9:
+        suggstions = "You are overweight consider a healthy diet and regular exercise to reach a healthier weight " + suggstions
+    else:
+        suggstions = "You are in the obese range please consult a healthcare professional " + suggstions
+    #  steps suggestions https://www.uclahealth.org/news/article/how-many-steps-do-you-need-day-see-health-benefits
+    if current_user.calculate_averages()['average_steps'] < 5000:
+        suggstions = "Try to increase your daily physical activity. Aim for at least 7,000-8,000 steps per day to improve your overall health " + suggstions
+    elif 5000 <= current_user.calculate_averages()['average_steps'] < 7500:
+        suggstions = "You're on the right track! Try to reach 10,000 steps daily for optimal health benefits " + suggstions
+    else:
+        suggstions = "Excellent work on staying active! Keep up the great effort to maintain your health " + suggstions
+    # sleep suggestions https://www.sleepfoundation.org/how-sleep-works/how-much-sleep-do-we-really-need
+    if current_user.calculate_averages()['average_sleep'] < 7:
+        suggstions = "Consider improving your sleep habits to ensure you're getting at least 7-9 hours of quality sleep each night " + suggstions
+    elif 7 <= current_user.calculate_averages()['average_sleep'] <= 9:
+        suggstions = "Great job on maintaining healthy sleep patterns! " + suggstions
+    else:
+        suggstions = "While getting enough sleep is important, consistently exceeding 9 hours may indicate underlying health issues " + suggstions
+    # mood suggestions
+    if current_user.calculate_averages()['sum_mood'] < -2:
+        suggstions = "It seems you've been feeling down lately. Try reaching out to friends, family or try to relax more " + suggstions
+    elif current_user.calculate_averages()['sum_mood'] > 2:
+        suggstions = "It's great to see you're feeling positive! " + suggstions
+    else:
+        suggstions = "Balanced mood not too happy, not too sad, just right " + suggstions
+    bmi_suggestion_label.config(text=suggstions)
 
+    # checking if the current day entry exists
+    for entry in entries:
+        if entry['profile_name'] == user['name'] and entry['date'] == date:
+            date_stat_submit_btn.config(text="Edit Entry")
+            steps_input_entry.insert(0, entry['steps'])
+            sleep_input_entry.insert(0, entry['sleep_hours'])
+            weight_input_entry.insert(0, entry['weight_kg'])
+            if entry['mood'] == 1:
+                mood_input_radio_happy.select()
+            elif entry['mood'] == 0:
+                mood_input_radio_neutral.select()
+            else:
+                mood_input_radio_sad.select()
+            break
+        else:
+            steps_input_entry.delete(0)
+            sleep_input_entry.delete(0)
+            weight_input_entry.delete(0)
+
+    show_statboard_screen()
+def adding_entry():
+    steps = steps_input_entry.get()
+    sleep = sleep_input_entry.get()
+    weight = weight_input_entry.get()
+    mood_value = 0
+    wrong_input = []
+    # input validation
+    if steps == "" or sleep == "" or weight == "":
+        wrong_input.append("All fields must be filled")
+    if not steps.isdigit() or int(steps) < 0:
+        wrong_input.append("steps must be a number that is more than 0 or equal to 0")
+    if not sleep.isdigit() or float(sleep) < 0 or float(sleep) > 24:
+        wrong_input.append("sleep hours must be a number between 0 and 24")
+    if not weight.isdigit() or float(weight) <= 0:
+        wrong_input.append("weight must be a number that is more than 0")
+    if not wrong_input == []:
+        tk.messagebox.showerror("Input Error", "\n".join(wrong_input))
+        return
+
+    if feeling.get() == "Happy":
+        mood_value = 1
+    elif feeling.get() == "Neutral":
+        mood_value = 0
+    else:
+        mood_value = -1
+    # check if entry for today already exists
+    for entry in enteries:
+        if entry['profile_name'] == current_user.name and entry['date'] == date.today().isoformat():
+            entry['steps'] = int(steps)
+            entry['sleep_hours'] = float(sleep)
+            entry['weight_kg'] = float(weight)
+            entry['mood'] = mood_value
+            return
+    # if not, create a new entry
+    enteries.append({
+        "profile_name": current_user.name,
+        "date": date.today().isoformat(),
+        "steps": int(steps),
+        "sleep_hours": float(sleep),
+        "weight_kg": float(weight),
+        "mood": mood_value
+    })
+    print(enteries)
+
+    
 
 # profiles loop function for left frame in profile screen
 def profile_loop(users_list):
@@ -56,15 +329,29 @@ def profile_loop(users_list):
     left_frame.grid( row=0, column=0, padx=15, pady=15, sticky='nsew')
     left_frame.grid_propagate(False)
     left_frame.grid_columnconfigure(0, weight=1)
+    left_frame.grid_rowconfigure(1, weight=1)
     left_frame_label = tk.Label(left_frame, text="Profiles", background="#ffffff", font=("inter", 20),)
     left_frame_label.grid(row=0, column=0, pady=(0,10), sticky='ew')
+    # scrollable area for profiles https://youtu.be/0WafQCaok6g
+    area_frame = tk.Frame(left_frame, bg="#ffffff", width=(400-30), height=500)
+    area_frame.grid(row=1, column=0, sticky='nsew',)
+    canvas = tk.Canvas(area_frame, bg="#ffffff", width=(400-30),)
+    scrollbar = tk.Scrollbar(area_frame, orient="vertical", command=canvas.yview, width=18)
+    scrollable_frame = tk.Frame(canvas, bg="#ffffff", width=(400-30),)
+    scrollable_frame.bind( "<Configure>", lambda e: canvas.configure( scrollregion=canvas.bbox("all") ) )
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+ 
+
     for user in users_list:
-        profile_frame =tk.Frame(left_frame, bg='#4A90E2', height=40, width=(400-30))
+        profile_frame =tk.Frame(scrollable_frame, bg='#4A90E2', height=40, width=(380-30))
         profile_frame.grid_propagate(False)
         profile_frame.grid(row=user['order'], column=0, pady=(0,10), sticky='we')
         profile_frame.grid_columnconfigure(0, weight=1)
         profile_label = tk.Label(profile_frame, text=user["name"]+' Age: '+str(user['age']), background="#4A90E2", font=("inter", 10), fg="#ffffff")
-        profile_btn_go = tk.Button(profile_frame, text="Go", background="#006AE5", font=("inter", 10), fg="#ffffff",)
+        profile_btn_go = tk.Button(profile_frame, text="Go", command=lambda user_data=user: statboard_render(user_data, date.today().isoformat(), enteries), background="#006AE5", font=("inter", 10), fg="#ffffff",)
         profile_btn_delete = tk.Button(profile_frame, text="Delete", command=lambda order=user['order']: profile_delete_btn(order), background="#006AE5", font=("inter", 10), fg="#ffffff",)
         profile_label.grid(row=0, column=0, sticky='w')
         profile_btn_go.grid(row=0, column=1, padx=5, pady=5 ,sticky='e')
@@ -99,6 +386,8 @@ def create_profile():
         right_frame_error_label.config(text="Height cannot be less than 50 cm")
     elif float(height) > 350:
         right_frame_error_label.config(text="Height cannot be more than 350 cm")
+    elif any((user['name'].lower() == name.lower() for user in users)):
+        right_frame_error_label.config(text="This user is already in the system")
     else:
         print(gender, name, age, height)
         users.append({
@@ -125,8 +414,10 @@ root.configure(bg="#f0f0f0")
 root.title("Fitness Tracker")
 root.resizable(False, False)
 root.geometry("800x600")
-### Profile Screen ###
+# Variables needed for radion checkboxes
 gender_var = tk.StringVar(value="Male")
+feeling = tk.StringVar(value="Neutral")
+### Profile Screen ###
 
 profile_screen = tk.Frame(root, bg="#f0f0f0", width=800, height=600)
 profile_screen.grid_propagate(False)
@@ -215,7 +506,7 @@ navigation_frame.grid_propagate(False)
 navigation_frame.grid_columnconfigure(0, weight=1)
 navigation_label = tk.Label(navigation_frame, text="Hello, Makhmudjan, June 11 2005", background="#f0f0f0", font=("inter", 20),)
 navigation_label.grid(row=0, column=0, sticky='w', padx=15)
-navigation_btn_profile = tk.Button(navigation_frame, text="Back to profiles", background="#006AE5", font=("inter", 16), fg="#000000", height=1, width=15)
+navigation_btn_profile = tk.Button(navigation_frame, text="Back to profiles", command=show_profile_screen, background="#006AE5", font=("inter", 16), fg="#000000", height=1, width=15)
 navigation_btn_profile.grid(row=0, column=1, padx=15, pady=5 ,sticky='e')
 
 # left stats_frame 
@@ -227,28 +518,28 @@ steps_frame = tk.Frame(stats_frame, bg='#4A90E2', height=60, width=(400-20))
 steps_frame.grid(row=0, column=0, pady=(0,20), sticky='we')
 steps_frame.grid_propagate(False)
 steps_frame.grid_columnconfigure(0, weight=1)
-steps_label = tk.Label(steps_frame, text="Steps Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 14), fg="#ffffff")
+steps_label = tk.Label(steps_frame, text="Steps Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 10), fg="#ffffff")
 steps_label.grid(row=0, column=0, sticky='w', padx=5, pady=10)
 
 sleep_frame = tk.Frame(stats_frame, bg='#4A90E2', height=60, width=(400-20))
 sleep_frame.grid(row=1, column=0, pady=(0,20), sticky='we')
 sleep_frame.grid_propagate(False)
 sleep_frame.grid_columnconfigure(0, weight=1)
-sleep_label = tk.Label(sleep_frame, text="Sleep Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 14), fg="#ffffff")
+sleep_label = tk.Label(sleep_frame, text="Sleep Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 10), fg="#ffffff")
 sleep_label.grid(row=1, column=0, sticky='w', padx=5, pady=10)
 
 mood_frame = tk.Frame(stats_frame, bg='#4A90E2', height=60, width=(400-20))
 mood_frame.grid(row=3, column=0, pady=(0,20), sticky='we')
 mood_frame.grid_propagate(False)
 mood_frame.grid_columnconfigure(0, weight=1)
-mood_label = tk.Label(mood_frame, text="feeling Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 14), fg="#ffffff")
+mood_label = tk.Label(mood_frame, text="feeling Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 10), fg="#ffffff")
 mood_label.grid(row=3, column=0, sticky='w', padx=5, pady=10)
 
 weight_frame = tk.Frame(stats_frame, bg='#4A90E2', height=60, width=(400-20))
 weight_frame.grid(row=4, column=0, sticky='we')
 weight_frame.grid_propagate(False)
 weight_frame.grid_columnconfigure(0, weight=1)
-weight_label = tk.Label(weight_frame, text="Weight Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 14), fg="#ffffff")
+weight_label = tk.Label(weight_frame, text="Weight Today: 10,000 dfdf  dfd f  df", background="#4A90E2", font=("inter", 10), fg="#ffffff")
 weight_label.grid(row=4, column=0, sticky='w', padx=5, pady=10)
 
 # dates stat input frame
@@ -281,11 +572,11 @@ mood_input_frame.grid_propagate(False)
 mood_input_frame.grid_columnconfigure(1, weight=1)
 mood_input_frame.grid_columnconfigure(2, weight=1)
 mood_input_label = tk.Label(mood_input_frame, text="This day's mood:", background="#4A90E2", font=("inter", 14), fg="#ffffff")
-mood_input_radio_happy = tk.Radiobutton(mood_input_frame, text="Happy", value="Happy", font=("inter", 12), bg='#4A90E2', fg="#ffffff")
+mood_input_radio_happy = tk.Radiobutton(mood_input_frame, text="Happy", variable=feeling, value="Happy", font=("inter", 12), bg='#4A90E2', fg="#ffffff", selectcolor='#3772B5')
 mood_input_radio_happy.grid(row=0, column=1, padx=3, pady=5, sticky='e')
-mood_input_radio_neutral = tk.Radiobutton(mood_input_frame, text="Neutral", value="Neutral", font=("inter", 12), bg='#4A90E2', fg="#ffffff")
+mood_input_radio_neutral = tk.Radiobutton(mood_input_frame, text="Neutral", variable=feeling, value="Neutral", font=("inter", 12), bg='#4A90E2', fg="#ffffff", selectcolor='#3772B5')
 mood_input_radio_neutral.grid(row=0, column=2, padx=3, pady=5, sticky='e')
-mood_input_radio_sad = tk.Radiobutton(mood_input_frame, text="Sad", value="Sad", font=("inter", 12), bg='#4A90E2', fg="#ffffff")
+mood_input_radio_sad = tk.Radiobutton(mood_input_frame, text="Sad", value="Sad", variable=feeling, font=("inter", 12), bg='#4A90E2', fg="#ffffff", selectcolor='#3772B5')
 mood_input_radio_sad.grid(row=0, column=3, padx=3, pady=5, sticky='e')
 mood_input_label.grid(row=0, column=0, sticky='w', padx=5, pady=10)
 
@@ -298,7 +589,7 @@ weight_input_label.grid(row=0, column=0, sticky='w', padx=5, pady=10)
 weight_input_entry = tk.Entry(weight_input_frame, font=("inter", 15))
 weight_input_entry.grid(row=0, column=1, padx=5, pady=5, sticky='e')
 
-date_stat_submit_btn = tk.Button(date_stat_frame, text="Submit Entry", background="#136FDA", font=("inter", 16, "bold"), fg="#000000", height=1)
+date_stat_submit_btn = tk.Button(date_stat_frame, text="Submit Entry", command=adding_entry, background="#136FDA", font=("inter", 16, "bold"), fg="#000000", height=1)
 date_stat_submit_btn.grid(row=4, column=0, sticky='WENS', pady=(20,0), padx=20)
 
 # BMI and text suggestion frame
@@ -331,7 +622,7 @@ history_nav_frame.grid_propagate(False)
 history_nav_frame.grid_columnconfigure(0, weight=1)
 history_nav_label = tk.Label(history_nav_frame, text="Select a date you want to know more about and edit", background="#f0f0f0", font=("inter", 16),)
 history_nav_label.grid(row=0, column=0, sticky='w', padx=15)
-history_nav_btn_statboard = tk.Button(history_nav_frame, text="Back to Stats", background="#006AE5", font=("inter", 16), fg="#000000", height=1, width=15)
+history_nav_btn_statboard = tk.Button(history_nav_frame, text="Back to Stats", command=show_statboard_screen, background="#006AE5", font=("inter", 16), fg="#000000", height=1, width=15)
 history_nav_btn_statboard.grid(row=0, column=1, padx=15, pady=5 ,sticky='e')
 
 history_list_container = tk.Frame(history_screen, bg="#ffffff", width=(800-30), height=500,)
