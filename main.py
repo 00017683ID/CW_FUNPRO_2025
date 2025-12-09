@@ -3,8 +3,119 @@
 # Profile: { name, gender, age, height_cm }
 # DailyEntry: { profile_name, date, steps, sleep_hours, mood, weight_kg }
 
+# Notes for documentation the logis is following the fisrt screen to open is the profile one so user in that screen can create a profile 
+# then delete a profile or go to the stats of that profile. in order to do so I decided to pack muy rendering of UI of profile screen in a function
+# so i could updtae data in the profile screen acroding to added new profiel or deleted ones so every time any btn is pushed 
+# idealy i want to make so it destryes old profile screen and crates a new one with updated data
 
+from operator import index
 import tkinter as tk
+
+
+users = [
+    {
+        "name": "Makhmudjan",
+        "gender": "Male",
+        "age": 18,
+        "height": 175.0,
+        'order': 1
+    },
+    {
+        "name": "Malika",
+        "gender": "Female",
+        'age': 25,
+        "height": 165.0,
+        "order": 2
+    }
+]
+
+enteries = []
+
+def show_profile_screen():
+    profile_screen.tkraise()
+def show_statboard_screen():
+    statboard_screen.tkraise()
+def show_history_screen():
+    history_screen.tkraise()
+
+
+
+
+# profiles loop function for left frame in profile screen
+def profile_loop(users_list):
+    def profile_delete_btn(index):
+        users.pop(index-1)
+        # re-ordering the remaining profiles
+        for i in range(len(users)):
+            users[i]['order'] = i + 1
+        # refreshing the profile left screen
+        left_frame.destroy()
+        profile_loop(users)
+    
+    left_frame = tk.Frame(profile_screen, bg="#ffffff", width=(400-30), height=570,)
+    left_frame.grid( row=0, column=0, padx=15, pady=15, sticky='nsew')
+    left_frame.grid_propagate(False)
+    left_frame.grid_columnconfigure(0, weight=1)
+    left_frame_label = tk.Label(left_frame, text="Profiles", background="#ffffff", font=("inter", 20),)
+    left_frame_label.grid(row=0, column=0, pady=(0,10), sticky='ew')
+    for user in users_list:
+        profile_frame =tk.Frame(left_frame, bg='#4A90E2', height=40, width=(400-30))
+        profile_frame.grid_propagate(False)
+        profile_frame.grid(row=user['order'], column=0, pady=(0,10), sticky='we')
+        profile_frame.grid_columnconfigure(0, weight=1)
+        profile_label = tk.Label(profile_frame, text=user["name"]+' Age: '+str(user['age']), background="#4A90E2", font=("inter", 10), fg="#ffffff")
+        profile_btn_go = tk.Button(profile_frame, text="Go", background="#006AE5", font=("inter", 10), fg="#ffffff",)
+        profile_btn_delete = tk.Button(profile_frame, text="Delete", command=lambda order=user['order']: profile_delete_btn(order), background="#006AE5", font=("inter", 10), fg="#ffffff",)
+        profile_label.grid(row=0, column=0, sticky='w')
+        profile_btn_go.grid(row=0, column=1, padx=5, pady=5 ,sticky='e')
+        profile_btn_delete.grid(row=0, column=2,padx=5, pady=5, sticky='e')
+
+def create_profile():
+    gender = str(gender_var.get())
+    name = right_frame_name_entry.get()
+    age = right_frame_age_entry.get()
+    height = right_frame_height_entry.get()
+    if name == "" or age == "" or height == "":
+        right_frame_error_label.config(text="Please fill in all the fields to create a profile")
+    elif name.isspace() or age.isspace() or height.isspace():
+        right_frame_error_label.config(text="Fields cannot be just spaces")
+    elif len(name) < 3:
+        right_frame_error_label.config(text="Name must be at least 3 characters long")
+    elif len(name) > 30:
+        right_frame_error_label.config(text="Name cannot be longer than 30 characters")
+    elif any(char.isdigit() for char in name):
+        right_frame_error_label.config(text="Name cannot contain numbers.")
+    elif any(not char.isalnum() and char != ' ' for char in name):
+        right_frame_error_label.config(text="Name cannot contain special characters or spaces")
+    elif not age.isdigit() or int(age) <= 0:
+        right_frame_error_label.config(text="Please enter a number and it is positive for age field")
+    elif float(age) <= 0:
+        right_frame_error_label.config(text="Common, you can't be less than 1 year old!")
+    elif float(age) > 120:
+        right_frame_error_label.config(text="Don't lie you cannot be that old unless you are Ethel Caterham")
+    elif not height.isdigit():
+        right_frame_error_label.config(text="Please enter a number and it is positive for height field")
+    elif float(height) < 50:
+        right_frame_error_label.config(text="Height cannot be less than 50 cm")
+    elif float(height) > 350:
+        right_frame_error_label.config(text="Height cannot be more than 350 cm")
+    else:
+        print(gender, name, age, height)
+        users.append({
+                "name": name,
+                "gender": gender
+                ,"age": int(age),
+                "height": float(height),
+                'order': len(users) + 1
+            })
+        profile_loop(users)
+        right_frame_error_label.config(text="NEW USER IS ADDED")
+        right_frame_name_entry.delete(0, tk.END)
+        right_frame_age_entry.delete(0, tk.END)
+        right_frame_height_entry.delete(0, tk.END)
+        gender_var.set("Male")
+
+    
 
 
 #GUI with Tkinter
@@ -15,28 +126,16 @@ root.title("Fitness Tracker")
 root.resizable(False, False)
 root.geometry("800x600")
 ### Profile Screen ###
+gender_var = tk.StringVar(value="Male")
+
 profile_screen = tk.Frame(root, bg="#f0f0f0", width=800, height=600)
 profile_screen.grid_propagate(False)
 profile_screen.grid(row=0, column=0, sticky='nsew')
 
 
 
-#left frame content
-left_frame = tk.Frame(profile_screen, bg="#ffffff", width=(400-30), height=570,)
-left_frame.grid( row=0, column=0, padx=15, pady=15, sticky='nsew')
-left_frame.grid_propagate(False)
-left_frame_label = tk.Label(left_frame, text="Profiles", background="#ffffff", font=("inter", 20),)
-left_frame_label.grid(row=0, column=0, pady=(0,10), sticky='ew')
-profile_frame =tk.Frame(left_frame, bg='#4A90E2', height=40, width=(400-30))
-profile_frame.grid_propagate(False)
-profile_frame.grid(row=1, column=0, pady=(0,10), sticky='we')
-profile_frame.grid_columnconfigure(0, weight=1)
-profile_label = tk.Label(profile_frame, text="Profile,dfjsndfjdf,dfjdjfdf", background="#4A90E2", font=("inter", 10), fg="#ffffff")
-profile_btn_go = tk.Button(profile_frame, text="Go", background="#006AE5", font=("inter", 10), fg="#ffffff",)
-profile_btn_delete = tk.Button(profile_frame, text="Delete", background="#006AE5", font=("inter", 10), fg="#ffffff",)
-profile_label.grid(row=0, column=0, sticky='w')
-profile_btn_go.grid(row=0, column=1, padx=5, pady=5 ,sticky='e')
-profile_btn_delete.grid(row=0, column=2,padx=5, pady=5, sticky='e')
+#left frame content and its profiles lists
+profile_loop(users)
 
 # right frame content
 right_frame = tk.Frame(profile_screen, bg="#ffffff", width=(400-30), height=570,)
@@ -61,10 +160,10 @@ right_frame_gender.grid_propagate(False)
 right_frame_gender.grid_columnconfigure(1, weight=1)
 right_frame_gender_label = tk.Label(right_frame_gender, text="Gender:", background="#4A90E2", font=("inter", 20), fg="#ffffff")
 right_frame_gender_label.grid(row=0, column=0, sticky='w', padx=5)
-right_frame_gender_radio_male = tk.Radiobutton(right_frame_gender, text="Male", value="Male", font=("inter", 12), bg='#4A90E2', fg="#ffffff")
-right_frame_gender_radio_male.grid(row=0, column=1, padx=10, pady=5, sticky='e')
-right_frame_gender_radio_female = tk.Radiobutton(right_frame_gender, text="Female", value="Female", font=("inter", 12), bg='#4A90E2', fg="#ffffff")         
+right_frame_gender_radio_male = tk.Radiobutton(right_frame_gender, text="Male", variable=gender_var , value="Male", font=("inter", 12), bg='#4A90E2', fg="#ffffff", selectcolor="#3772B5")
+right_frame_gender_radio_female = tk.Radiobutton(right_frame_gender, text="Female", variable=gender_var , value="Female", font=("inter", 12), bg='#4A90E2', fg="#ffffff",selectcolor='#3772B5')         
 right_frame_gender_radio_female.grid(row=0, column=2, padx=5, pady=5, sticky='e')
+right_frame_gender_radio_male.grid(row=0, column=1, padx=10, pady=5, sticky='e')
 
 # right frame age input
 right_frame_age = tk.Frame(right_frame, bg='#4A90E2', height=40, width=(400-30))
@@ -96,7 +195,7 @@ right_frame_error_label = tk.Label(right_frame_error, text="", background="#ffff
 right_frame_error_label.grid(row=0, column=0, sticky='w', padx=5)
 
 # right frame create profile button
-right_frame_create_btn = tk.Button(right_frame, text="Create Profile", background="#136FDA", font=("inter", 15, "bold"), fg="#000000",)
+right_frame_create_btn = tk.Button(right_frame, text="Create Profile", command=create_profile, background="#136FDA", font=("inter", 15, "bold"), fg="#000000",)
 right_frame_create_btn.grid(row=6, column=0, pady=10, sticky='wn', padx=40)
 
 ### end of a profile screen ###
@@ -219,7 +318,7 @@ history_btn.grid(row=2, column=0, sticky='e', padx=15, pady=(0, 10))
 
 ### end of statboard screen ###
 
-# history screen
+### history screen ###
 
 history_screen = tk.Frame(root, bg="#f0f0f0", width=800, height=600)
 history_screen.grid(row=0, column=0, sticky='nsew')
@@ -250,10 +349,8 @@ history_list_label.grid(row=0, column=0, sticky='w', pady=5, padx=5)
 history_btn_view = tk.Button(history_list_frame, text="View and Edit", background="#006AE5", font=("inter", 10), fg="#000000",)
 history_btn_view.grid(row=0, column=1, padx=5, pady=5 ,sticky='e')
 
+### end of history screen ###
 
-
-
-
-
+show_profile_screen()
 
 root.mainloop()
